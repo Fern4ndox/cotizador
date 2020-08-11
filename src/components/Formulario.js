@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
-import styled from '@emotion/styled'
-
+import styled from '@emotion/styled';
+import {obtenerDiferenciayear, calcularMarca, obtenerPlan} from '../helper';
+ 
 //Styled
 const Campo = styled.div
 `
@@ -45,15 +46,26 @@ margin-top: 2rem;
     background-color: #26C6DA;
     cursor : pointer;
 }
+`;
+const Error = styled.div
 `
+background-color: red;
+color: white;
+padding: 1rem;
+width: 100%;
+text-align: center;
+margin-bottom: 2rem;
+`;
 
-const Formulario = () => {
-
+const Formulario = ({guardarResumen}) => {
+    //Almacena Información State
     const [datos, guardarDatos] = useState({
         marca:'',
         year:'',
         plan:''
     });
+    //Errores
+    const [error, guardarError] = useState(false);
 
     //Extraer Valores
 
@@ -66,9 +78,52 @@ const Formulario = () => {
         })
     }
 
+    //Submit
+
+    const cotizaSeguro = e =>{
+        e.preventDefault();
+        if(marca.trim() === '' || year.trim() === '' || plan.trim() === '')
+        {
+            guardarError(true);
+            return;
+        }
+        guardarError(false);
+        
+        //Base de 2000
+        let resultado = 2000;
+
+        //Diferencia años
+        
+        const diferencia= obtenerDiferenciayear(year);
+
+        //Por año restar el 3%
+
+        resultado -= ((diferencia*3)*resultado)/100;
+
+        //Americano 15%
+        //Asiatico 5%
+        //Europeo 30%
+        resultado = calcularMarca(marca) * resultado;
+
+        //Plan básico 20%
+        //Completo 50%
+        const incrementoPlan = obtenerPlan(plan);
+        resultado = parseFloat(incrementoPlan*resultado).toFixed(2);
+        console.log(resultado);
+        //ToFixed = únicamente 2 decimales después del punto
+        guardarResumen({
+            cotizacion: resultado, 
+            datos
+        })
+        //Total
+    }
+
 
     return (  
-        <form>
+        <form onSubmit={cotizaSeguro}>
+            {error?
+            <Error>Todos los campos son obligatorio</Error>
+            :null}
             <Campo>
                 <Label>
                     Marca
@@ -125,7 +180,7 @@ const Formulario = () => {
                     onChange={obtenerInformacion}
                 /> Completo
             </Campo >
-            <Button type="button">Cotizar</Button>
+            <Button type="submit">Cotizar</Button>
         </form>
     );
 }
