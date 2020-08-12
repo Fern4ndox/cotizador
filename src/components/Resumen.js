@@ -1,8 +1,9 @@
-import React, {Fragment} from 'react';
+import React from 'react';
 import styled from '@emotion/styled';
 import {primeraMayuscula} from '../helper';
-const Resumen  = ({datos}) => {
-    
+import PropTypes from 'prop-types';
+
+const Resumen  = ({datos}) => {    
     const ContenerdorResumen = styled.div
     `
     padding: 1rem;
@@ -28,5 +29,7 @@ const Resumen  = ({datos}) => {
         </ContenerdorResumen>
     );
 }
- 
+Resumen.propTypes={
+    datos: PropTypes.object.isRequired
+}
 export default Resumen;
